@@ -19,11 +19,11 @@ type Utf8Converter struct {
 }
 
 func NewUtf8Converter() *Utf8Converter {
-	ret := Utf8Converter{}
-	ret.detector = chardet.NewHtmlDetector()
-	ret.gbk = mahonia.NewDecoder("gb18030")
-	ret.big5 = mahonia.NewDecoder("big5")
-	return &ret
+	return &Utf8Converter{
+		detector: chardet.NewHtmlDetector(),
+		gbk:      mahonia.NewDecoder("gb18030"),
+		big5:     mahonia.NewDecoder("big5"),
+	}
 }
 
 func (self *Utf8Converter) DetectCharset(src []byte) string {
