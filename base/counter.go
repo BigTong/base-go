@@ -12,14 +12,14 @@ import (
 
 type Counter struct {
 	data      map[string]int64
-	StartTime string
+	startTime string
 	lock      *sync.RWMutex
 }
 
 func NewCounter() *Counter {
 	return &Counter{
 		data:      make(map[string]int64),
-		StartTime: time.Now().Format("2006/01/02 15:04:05"),
+		startTime: time.Now().Format("2000-01-01 01:01:01"),
 		lock:      &sync.RWMutex{},
 	}
 }
@@ -52,12 +52,6 @@ func (self *Counter) Set(key string, val int64) {
 }
 
 func (self *Counter) Stat() map[string]int64 {
-	self.lock.RLock()
-	defer self.lock.RUnlock()
-	return self.data
-}
-
-func (self *Counter) Data() map[string]int64 {
 	self.lock.RLock()
 	defer self.lock.RUnlock()
 	return self.data
