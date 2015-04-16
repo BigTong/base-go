@@ -9,7 +9,6 @@ import (
 	"code.google.com/p/mahonia"
 	"github.com/saintfish/chardet"
 	"strings"
-	"unicode/utf8"
 )
 
 type Utf8Converter struct {
@@ -40,9 +39,8 @@ func (self *Utf8Converter) DetectCharset(src []byte) string {
 				w = ret.Confidence
 				maxret = cs
 			}
-		} else {
-			continue
 		}
+		continue
 	}
 	return maxret
 }
@@ -50,19 +48,19 @@ func (self *Utf8Converter) DetectCharset(src []byte) string {
 func (self *Utf8Converter) ToUTF8(src []byte) []byte {
 	charset := self.DetectCharset(src)
 
-	if !strings.Contains(charset, "gb") && !strings.Contains(charset, "big") {
+	if !strings.HasPrefix(charset, "gb") && !strings.HasPrefix(charset, "big") {
 		charset = "utf-8"
 	}
 	switch charset {
 	case "utf-8", "utf8":
 		return src
 	case "gb2312", "gb-2312", "gbk", "gb18030", "gb-18030":
-		ret, ok := self.gbk.ConvertStringOK(string(html))
+		ret, ok := self.gbk.ConvertStringOK(string(src))
 		if ok {
 			return []byte(ret)
 		}
 	case "big5":
-		ret, ok := self.big5.ConvertStringOK(string(html))
+		ret, ok := self.big5.ConvertStringOK(string(src))
 		if ok {
 			return []byte(ret)
 		}
