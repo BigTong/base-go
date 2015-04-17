@@ -9,29 +9,38 @@ import (
 	"testing"
 )
 
+type TestItem struct {
+	src      string
+	expected string
+}
+
 func TestStringClean(t *testing.T) {
-	s1 := Clean("  aa")
-	if s1 != "aa" {
-		t.Error("not pass s1:", s1)
+	var testCases = []TestItem{
+		TestItem{
+			src:      "  aa",
+			expected: "aa",
+		},
+		TestItem{
+			src:      "aa    bb cc   ",
+			expected: "aa bb cc",
+		},
+		TestItem{
+			src:      "  ",
+			expected: "",
+		},
+		TestItem{
+			src:      "         aa    bb cc  dd         eee    ",
+			expected: "aa bb cc dd eee",
+		},
+		TestItem{
+			src:      "         aa    bb cc  dd         eee    fff",
+			expected: "aa bb cc dd eee fff",
+		},
 	}
-
-	s2 := Clean("aa    bb cc   ")
-	if s2 != "aa bb cc" {
-		t.Error("not pass s2:", s2)
-	}
-
-	s3 := Clean("aa    bb cc  dd  eee    ")
-	if s3 != "aa bb cc dd eee" {
-		t.Error("not pass s3:", s3)
-	}
-
-	s4 := Clean("         aa    bb cc  dd         eee    ")
-	if s4 != "aa bb cc dd eee" {
-		t.Error("not pass s4:", s4)
-	}
-
-	s5 := Clean("         aa    bb cc  dd         eee    fff")
-	if s5 != "aa bb cc dd eee fff" {
-		t.Error("not pass s5:", s5)
+	for _, item := range testCases {
+		ret := Clean(item.src)
+		if ret != item.expected {
+			t.Error("not pass test cases, src:", item.src, " expected:", item.expected)
+		}
 	}
 }
