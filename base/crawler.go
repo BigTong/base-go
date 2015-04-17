@@ -11,6 +11,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 )
 
@@ -29,7 +31,9 @@ func (c *Crawler) httpGet(url string) (error, []byte) {
 	if err != nil {
 		return err, []byte("")
 	}
-	defer r.Body.Close()
+	if r.Body != nil {
+		defer r.Body.Close()
+	}
 
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -77,4 +81,44 @@ func (c *Crawler) GetDomHtml(url string, repeatTimes int) (error,
 		return nil, doc
 	}
 	return retErr, nil
+}
+
+func (c *Crawler) GetRawHtmlByPost(api string, params url.Values) (error,
+	string) {
+	if len(api) == 0 {
+		return errors.New("invalid api"), ""
+	}
+	req, err := http.NewRequest("POST", api, strings.NewReader(params.Encode()))
+	if err != nil {
+		return err, ""
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	hc := http.Client{}
+	resp, err := hc.Do(req)
+	if err != nil {
+		return err, ""
+	}
+
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err, ""
+	}
+	return nil, string(c.utf8Converter.ToUTF8(data))
+}
+
+func (c *Crawler) GetDomHtmlByPost(api string, params url.Values) (error, *goquery.Document) {
+	err, rawHtml := c.GetRawHtmlByPost(api, params)
+	if err != nil {
+		return err, nil
+	}
+
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(rawHtml))
+	if err != nil {
+		return err, nil
+	}
+	return nil, doc
 }
